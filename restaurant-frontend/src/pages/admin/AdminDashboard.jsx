@@ -31,14 +31,12 @@ const AdminDashboard = () => {
       playSound()
     })
 
-    return () => {
-      socket.disconnect() // ✅ FULL CLEANUP
-    }
+    return () => socket.disconnect()
   }, [])
 
   const playSound = () => {
     const audio = new Audio("/notification.mp3")
-    audio.play().catch(() => {}) // ✅ prevent crash if autoplay blocked
+    audio.play().catch(() => {})
   }
 
   const fetchOrders = async () => {
@@ -58,13 +56,11 @@ const AdminDashboard = () => {
     try {
       await orderAPI.updateOrderStatus(orderId, newStatus)
 
-      // ✅ OPTIMISTIC UPDATE (no refetch lag)
       setOrders(prev =>
         prev.map(order =>
           order._id === orderId ? { ...order, status: newStatus } : order
         )
       )
-
     } catch {
       setError('Failed to update order status')
     } finally {
@@ -101,10 +97,15 @@ const AdminDashboard = () => {
 
       <div className="dashboard-header">
         <h1>Kitchen Dashboard</h1>
-        <div>
-          <button onClick={() => navigate('/admin/menu')}>Menu</button>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
+        <div className="header-buttons">
+
+  {/* TEMP HIDE MENU */}
+  {false && (
+    <button onClick={() => navigate('/admin/menu')}>Menu</button>
+  )}
+
+  <button className="logout" onClick={handleLogout}>Logout</button>
+</div>
       </div>
 
       <div className="kanban-board">
@@ -116,40 +117,47 @@ const AdminDashboard = () => {
               <div
                 key={order._id}
                 className={`order-card 
-                  ${isUrgent(order.createdAt) ? 'urgent' : ''} 
-                  ${newOrderIds.includes(order._id) ? 'new' : ''}
-                `}
+                ${isUrgent(order.createdAt) ? 'urgent' : ''} 
+                ${newOrderIds.includes(order._id) ? 'new' : ''}`}
               >
                 <h2>Table {order.tableNumber}</h2>
-                <p>{getTimeAgo(order.createdAt)}</p>
+                <p className="time">{getTimeAgo(order.createdAt)}</p>
 
-                {isUrgent(order.createdAt) && <p>⚠ Delayed</p>}
-
-                {order.items.map((item, i) => (
-                  <div key={i}>
-                    {item.name} ×{item.quantity} ₹{item.price * item.quantity}
-                  </div>
-                ))}
-
-                <strong>Total ₹{order.totalAmount}</strong>
-
-                {order.status === 'Preparing' && (
-                  <button
-                    disabled={updatingOrderId === order._id}
-                    onClick={() => updateOrderStatus(order._id, 'Ready')}
-                  >
-                    {updatingOrderId === order._id ? 'Updating...' : 'Mark Ready'}
-                  </button>
+                {isUrgent(order.createdAt) && (
+                  <p className="delay">⚠ Delayed</p>
                 )}
 
-                {order.status === 'Ready' && (
-                  <button
-                    disabled={updatingOrderId === order._id}
-                    onClick={() => updateOrderStatus(order._id, 'Served')}
-                  >
-                    {updatingOrderId === order._id ? 'Updating...' : 'Mark Served'}
-                  </button>
-                )}
+                <div className="items">
+                  {order.items.map((item, i) => (
+                    <div key={i} className="item-row">
+                      <span>{item.name}</span>
+                      <span>×{item.quantity}</span>
+                      <span>₹{item.price * item.quantity}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="footer">
+                  <strong>Total ₹{order.totalAmount}</strong>
+
+                  {order.status === 'Preparing' && (
+                    <button
+                      disabled={updatingOrderId === order._id}
+                      onClick={() => updateOrderStatus(order._id, 'Ready')}
+                    >
+                      {updatingOrderId === order._id ? 'Updating...' : 'Mark Ready'}
+                    </button>
+                  )}
+
+                  {order.status === 'Ready' && (
+                    <button
+                      disabled={updatingOrderId === order._id}
+                      onClick={() => updateOrderStatus(order._id, 'Served')}
+                    >
+                      {updatingOrderId === order._id ? 'Updating...' : 'Mark Served'}
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -157,36 +165,159 @@ const AdminDashboard = () => {
       </div>
 
       <style jsx>{`
-        .kanban-board {
-          display: flex;
-          gap: 1rem;
-        }
+.admin-dashboard {
+  padding: 1rem;
+  background: #f4f6f8;
+  min-height: 100vh;
+}
 
-        .kanban-column {
-          min-width: 300px;
-        }
+/* HEADER */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
 
-        .order-card {
-          padding: 1rem;
-          margin-bottom: 1rem;
-          border-radius: 10px;
-          background: white;
-        }
+.dashboard-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+}
 
-        .urgent {
-          border: 2px solid red;
-        }
+/* BUTTONS */
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
 
-        .new {
-          animation: glow 1s ease-in-out 2;
-        }
+.header-buttons button {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
 
-        @keyframes glow {
-          0% { box-shadow: 0 0 0px blue; }
-          50% { box-shadow: 0 0 20px blue; }
-          100% { box-shadow: 0 0 0px blue; }
-        }
-      `}</style>
+/* Logout */
+.logout {
+  background: #ff6b6b;
+  color: white;
+}
+
+/* BOARD */
+.kanban-board {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.kanban-column {
+  min-width: 320px;
+}
+
+/* CARD */
+.order-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 16px;
+  padding-left: 18px; /* 🔥 FIX SPACING */
+  margin-bottom: 16px;
+  position: relative;
+  border: 2px solid #ff4d4d;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+/* LEFT COLOR STRIP */
+.order-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  border-radius: 20px 0 0 20px;
+  background: orange;
+}
+
+/* STATUS COLORS */
+.kanban-column:nth-child(2) .order-card::before {
+  background: #22c55e;
+}
+
+.kanban-column:nth-child(3) .order-card::before {
+  background: #9ca3af;
+}
+
+/* TEXT */
+.order-card h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.time {
+  color: gray;
+  font-size: 13px;
+}
+
+.delay {
+  color: red;
+  font-weight: 600;
+  margin: 5px 0;
+}
+
+/* ITEMS BOX */
+.items {
+  margin: 10px 0;
+  background: #f1f5f9;
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+/* FOOTER */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.footer button {
+  background: orange;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* READY BUTTON GREEN */
+.kanban-column:nth-child(2) .footer button {
+  background: #22c55e;
+}
+
+/* EFFECTS */
+.urgent {
+  border: 2px solid red;
+}
+
+.new {
+  animation: glow 1s ease-in-out 2;
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 0px blue; }
+  50% { box-shadow: 0 0 20px blue; }
+  100% { box-shadow: 0 0 0px blue; }
+}
+`}</style>
     </div>
   )
 }

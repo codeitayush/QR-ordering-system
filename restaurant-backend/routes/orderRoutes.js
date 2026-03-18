@@ -7,17 +7,15 @@ const {
   updateOrderStatus
 } = require('../controllers/orderController');
 
-// ✅ FIX: correct import (your middleware export style)
 const authMiddleware = require('../middleware/authMiddleware');
 
-
-// ✅ PUBLIC ROUTE (CUSTOMER - QR USERS)
+// POST /api/orders - Public route for customers to create orders
 router.post('/', createOrder);
 
-
-// 🔒 ADMIN ONLY ROUTES
+// GET /api/orders - Admin only - Get all orders
 router.get('/', authMiddleware, getAllOrders);
-router.put('/:id/status', authMiddleware, updateOrderStatus);
 
+// PUT /api/orders/:id/status - Admin only - Update order status
+router.put('/:id/status', authMiddleware, updateOrderStatus);
 
 module.exports = router;

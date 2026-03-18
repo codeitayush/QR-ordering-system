@@ -12,7 +12,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const app = express();
 const server = http.createServer(app);
 
-// SOCKET
+// SOCKET.IO
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -26,39 +26,61 @@ io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);
 });
 
-// CORS
+// CORS CONFIGURATION
 app.use(cors({
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
 }));
 
-// ✅ ONLY THIS (IMPORTANT)
-app.options('*', (req, res) => {
-  res.sendStatus(200);
+// PRE-FLIGHT HANDLING
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
 });
 
-// BODY
-app.use(express.json());
+// BODY PARSER
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ROUTES
+// API ROUTES
 app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 
-// TEST
+// HEALTH CHECK
 app.get('/', (req, res) => {
-  res.json({ message: 'QR Restaurant Ordering API is running' });
+  res.json({ 
+    message: 'QR Restaurant Ordering API is running',
+    status: 'active',
+    timestamp: new Date().toISOString()
+  });
 });
 
-// DB
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'healthy',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// DATABASE CONNECTION
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error(err));
+  .catch((err) => console.error('MongoDB connection error:', err));
 
-// START
+// SERVER START
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on http://0.0.0.0:${PORT}`);
+  console.log(`API accessible from mobile devices on same WiFi`);
 });
