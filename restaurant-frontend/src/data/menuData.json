@@ -1,0 +1,303 @@
+[
+  {
+    "name": "Poori Bhaji",
+    "description": "Fluffy fried bread with spiced potato curry",
+    "price": 150,
+    "category": "Breakfast",
+    "image": "/images/poori-bhaji.jpg"
+  },
+  {
+    "name": "Chole Bhatura",
+    "description": "Classic Punjabi breakfast with spicy chickpeas and fried bread",
+    "price": 180,
+    "category": "Breakfast",
+    "image": "/images/chole-bhatura.jpg"
+  },
+  {
+    "name": "Aloo Paratha",
+    "description": "Stuffed flatbread with spiced potatoes",
+    "price": 120,
+    "category": "Breakfast",
+    "image": "/images/aloo-paratha.jpg"
+  },
+  {
+    "name": "Onion Paratha",
+    "description": "Flaky flatbread stuffed with spiced onions",
+    "price": 140,
+    "category": "Breakfast",
+    "image": "/images/onion-paratha.jpg"
+  },
+  {
+    "name": "Gobhi Paratha",
+    "description": "Stuffed flatbread with cauliflower and spices",
+    "price": 160,
+    "category": "Breakfast",
+    "image": "/images/gobhi-paratha.jpg"
+  },
+  {
+    "name": "Egg Bhurji",
+    "description": "Spicy scrambled eggs with onions and tomatoes",
+    "price": 130,
+    "category": "Breakfast",
+    "image": "/images/egg-bhurji.jpg"
+  },
+  {
+    "name": "Veg Roll",
+    "description": "Rolled flatbread with spiced vegetables",
+    "price": 120,
+    "category": "Breakfast",
+    "image": "/images/veg-roll.jpg"
+  },
+  {
+    "name": "Chicken Roll",
+    "description": "Rolled flatbread with spiced chicken tikka",
+    "price": 180,
+    "category": "Breakfast",
+    "image": "/images/chicken-roll.jpg"
+  },
+  {
+    "name": "French Fries",
+    "description": "Crispy golden potato fries seasoned to perfection",
+    "price": 120,
+    "category": "Starter",
+    "image": "/images/french-fries.jpg"
+  },
+  {
+    "name": "Chilli Potato",
+    "description": "Crispy fried potato cubes tossed in spicy sauce",
+    "price": 140,
+    "category": "Starter",
+    "image": "/images/chilli-potato.jpg"
+  },
+  {
+    "name": "Paneer Pakora",
+    "description": "Crispy fried cottage cheese fritters with spices",
+    "price": 160,
+    "category": "Starter",
+    "image": "/images/paneer-pakora.jpg"
+  },
+  {
+    "name": "Veg Spring Roll",
+    "description": "Crispy rolls filled with vegetables and noodles",
+    "price": 150,
+    "category": "Starter",
+    "image": "/images/veg-spring-roll.jpg"
+  },
+  {
+    "name": "Veg Manchurian",
+    "description": "Indo-Chinese stir-fried vegetables with gravy",
+    "price": 220,
+    "category": "Starter",
+    "image": "/images/veg-manchurian.jpg"
+  },
+  {
+    "name": "Chicken Manchurian",
+    "description": "Spicy Indo-Chinese stir-fried chicken with noodles",
+    "price": 260,
+    "category": "Starter",
+    "image": "/images/chicken-manchurian.jpg"
+  },
+  {
+    "name": "Paneer Butter Masala",
+    "description": "Cottage cheese in rich tomato and butter gravy",
+    "price": 280,
+    "category": "Veg Main Course",
+    "image": "/images/paneer-butter-masala.jpg"
+  },
+  {
+    "name": "Kadai Paneer",
+    "description": "Cottage cheese cooked in kadai with capsicum and onions",
+    "price": 300,
+    "category": "Veg Main Course",
+    "image": "/images/kadai-paneer.jpg"
+  },
+  {
+    "name": "Shahi Paneer",
+    "description": "Royal cottage cheese curry with creamy gravy and nuts",
+    "price": 320,
+    "category": "Veg Main Course",
+    "image": "/images/shahi-paneer.jpg"
+  },
+  {
+    "name": "Dal Makhani",
+    "description": "Creamy black lentils cooked with butter and cream",
+    "price": 240,
+    "category": "Veg Main Course",
+    "image": "/images/dal-makhani.jpg"
+  },
+  {
+    "name": "Yellow Dal Tadka",
+    "description": "Arhar dal tempered with spices and ghee",
+    "price": 180,
+    "category": "Veg Main Course",
+    "image": "/images/yellow-dal-tadka.jpg"
+  },
+  {
+    "name": "Palak Paneer",
+    "description": "Cottage cheese with spinach in creamy gravy",
+    "price": 260,
+    "category": "Veg Main Course",
+    "image": "/images/palak-paneer.jpg"
+  },
+  {
+    "name": "Chicken Curry",
+    "description": "Tender chicken pieces in aromatic curry with spices",
+    "price": 280,
+    "category": "Non Veg Main Course",
+    "image": "/images/chicken-curry.jpg"
+  },
+  {
+    "name": "Butter Chicken",
+    "description": "Tender chicken in rich buttery tomato gravy",
+    "price": 320,
+    "category": "Non Veg Main Course",
+    "image": "/images/butter-chicken.jpg"
+  },
+  {
+    "name": "Chicken Tikka Masala",
+    "description": "Grilled chicken tikka in spicy onion tomato gravy",
+    "price": 340,
+    "category": "Non Veg Main Course",
+    "image": "/images/chicken-tikka-masala.jpg"
+  },
+  {
+    "name": "Chicken Kadai",
+    "description": "Chicken cooked in kadai with capsicum and onions",
+    "price": 300,
+    "category": "Non Veg Main Course",
+    "image": "/images/chicken-kadai.jpg"
+  },
+  {
+    "name": "Mutton Curry",
+    "description": "Tender mutton pieces in spicy traditional curry",
+    "price": 380,
+    "category": "Non Veg Main Course",
+    "image": "/images/mutton-curry.jpg"
+  },
+  {
+    "name": "Mutton Rogan Josh",
+    "description": "Kashmiri-style lamb curry with aromatic spices",
+    "price": 450,
+    "category": "Non Veg Main Course",
+    "image": "/images/mutton-rogan-josh.jpg"
+  },
+  {
+    "name": "Butter Naan",
+    "description": "Soft leavened tandoori bread brushed with butter",
+    "price": 40,
+    "category": "Roti n Rice",
+    "image": "/images/butter-naan.jpg"
+  },
+  {
+    "name": "Tandoori Roti",
+    "description": "Traditional clay oven baked whole wheat bread",
+    "price": 30,
+    "category": "Roti n Rice",
+    "image": "/images/tandoori-roti.jpg"
+  },
+  {
+    "name": "Laccha Paratha",
+    "description": "Layered flaky flatbread with ghee",
+    "price": 50,
+    "category": "Roti n Rice",
+    "image": "/images/laccha-paratha.jpg"
+  },
+  {
+    "name": "Jeera Rice",
+    "description": "Basmati rice flavored with cumin seeds and ghee",
+    "price": 180,
+    "category": "Roti n Rice",
+    "image": "/images/jeera-rice.jpg"
+  },
+  {
+    "name": "Veg Fried Rice",
+    "description": "Basmati rice stir-fried with mixed vegetables",
+    "price": 200,
+    "category": "Roti n Rice",
+    "image": "/images/veg-fried-rice.jpg"
+  },
+  {
+    "name": "Chicken Fried Rice",
+    "description": "Basmati rice stir-fried with chicken and spices",
+    "price": 240,
+    "category": "Roti n Rice",
+    "image": "/images/chicken-fried-rice.jpg"
+  },
+  {
+    "name": "Chicken Biryani",
+    "description": "Aromatic basmati rice cooked with chicken and spices",
+    "price": 320,
+    "category": "Roti n Rice",
+    "image": "/images/chicken-biryani.jpg"
+  },
+  {
+    "name": "Mutton Biryani",
+    "description": "Rich and aromatic basmati rice with mutton",
+    "price": 380,
+    "category": "Roti n Rice",
+    "image": "/images/mutton-biryani.jpg"
+  },
+  {
+    "name": "Veg Soup",
+    "description": "Mixed vegetable soup with herbs and spices",
+    "price": 120,
+    "category": "Soups",
+    "image": "/images/veg-soup.jpg"
+  },
+  {
+    "name": "Tomato Soup",
+    "description": "Fresh tomato soup with herbs and cream",
+    "price": 140,
+    "category": "Soups",
+    "image": "/images/tomato-soup.jpg"
+  },
+  {
+    "name": "Chicken Soup",
+    "description": "Hearty chicken soup with vegetables and herbs",
+    "price": 160,
+    "category": "Soups",
+    "image": "/images/chicken-soup.jpg"
+  },
+  {
+    "name": "Hot Veg Soup",
+    "description": "Spicy mixed vegetable soup with Indo-Chinese flavors",
+    "price": 130,
+    "category": "Soups",
+    "image": "/images/hot-veg-soup.jpg"
+  },
+  {
+    "name": "Manchow Soup",
+    "description": "Spicy Indo-Chinese noodle soup with vegetables",
+    "price": 140,
+    "category": "Soups",
+    "image": "/images/manchow-soup.jpg"
+  },
+  {
+    "name": "Curd",
+    "description": "Fresh homemade yogurt",
+    "price": 80,
+    "category": "Raita",
+    "image": "/images/curd.jpg"
+  },
+  {
+    "name": "Boondi Raita",
+    "description": "Yogurt with crispy gram flour dumplings",
+    "price": 120,
+    "category": "Raita",
+    "image": "/images/boondi-raita.jpg"
+  },
+  {
+    "name": "Onion Raita",
+    "description": "Yogurt with finely chopped onions and spices",
+    "price": 100,
+    "category": "Raita",
+    "image": "/images/onion-raita.jpg"
+  },
+  {
+    "name": "Mix Raita",
+    "description": "Yogurt mixed with grated cucumber and tomatoes",
+    "price": 110,
+    "category": "Raita",
+    "image": "/images/mix-raita.jpg"
+  }
+]
