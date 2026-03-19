@@ -11,7 +11,7 @@ const authMiddleware = (req, res, next) => {
       });
     }
     
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.ayush_super_secret_key_2026);
     req.admin = decoded;
     next();
   } catch (error) {
