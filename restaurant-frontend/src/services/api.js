@@ -1,8 +1,7 @@
 import axios from 'axios'
 
-// 🔥 IMPORTANT: Replace with your actual local IP for mobile access
-// Format: http://YOUR_LOCAL_IP:5000/api
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// 🔥 IMPORTANT: Use Vite environment variable for deployed backend
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 console.log("API URL:", API_BASE_URL)
 
@@ -11,7 +10,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json'
   },
-  timeout: 60000 // 10 second timeout
+  timeout: 60000 // 60 second timeout for Render cold starts
 })
 
 // 🔒 attach token ONLY if exists (admin)

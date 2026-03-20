@@ -45,9 +45,9 @@ const Cart = () => {
       setError(null)
 
       const orderData = {
-        tableNumber: Number(tableNumber),
+        tableNumber: tableNumber,
         items: items.map(item => ({
-          itemId: item.id,
+          id: item.id,
           name: item.name,
           quantity: item.quantity,
           price: item.price
