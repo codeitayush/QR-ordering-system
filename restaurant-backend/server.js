@@ -84,3 +84,29 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://0.0.0.0:${PORT}`);
   console.log(`API accessible from mobile devices on same WiFi`);
 });
+
+const bcrypt = require('bcryptjs');
+const Admin = require('./models/Admin');
+
+const createAdmin = async () => {
+  try {
+    const existing = await Admin.findOne({ username: 'admin' });
+
+    if (!existing) {
+      const hashedPassword = await bcrypt.hash('admin123', 10);
+
+      await Admin.create({
+        username: 'admin',
+        password: hashedPassword
+      });
+
+      console.log("🔥 Admin created: admin / admin123");
+    } else {
+      console.log("Admin already exists");
+    }
+  } catch (err) {
+    console.error("Admin creation error:", err);
+  }
+};
+
+createAdmin();
