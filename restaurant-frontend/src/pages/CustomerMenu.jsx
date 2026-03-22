@@ -12,21 +12,20 @@ const CustomerMenu = () => {
   const [searchParams] = useSearchParams()
   const [menuItems, setMenuItems] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
   const [activeCategory, setActiveCategory] = useState('')
   const categoryRefs = useRef({})
   const observerRefs = useRef({})
-  
+
   const tableNumber = searchParams.get('table')
 
-  // ✅ FIX: SAVE TABLE NUMBER FOR PHONE NAVIGATION
+  // ✅ SAVE TABLE NUMBER
   useEffect(() => {
     if (tableNumber) {
       localStorage.setItem('tableNumber', tableNumber)
-      console.log("Saved tableNumber:", tableNumber)
     }
   }, [tableNumber])
 
+  // ✅ FETCH MENU
   useEffect(() => {
     const fetchMenu = async () => {
       try {
@@ -35,16 +34,14 @@ const CustomerMenu = () => {
         const response = await menuAPI.getMenu()
         const backendData = response?.data?.data
 
-        if (false) {
+        if (backendData && backendData.length > 0) {
           setMenuItems(backendData)
         } else {
           setMenuItems(menuData)
         }
-
-        setError(null)
       } catch (err) {
+        console.error('Menu fetch error:', err)
         setMenuItems(menuData)
-        setError(null)
       } finally {
         setLoading(false)
       }
@@ -53,6 +50,7 @@ const CustomerMenu = () => {
     fetchMenu()
   }, [])
 
+  // ✅ DEFAULT CATEGORY
   useEffect(() => {
     if (menuItems.length > 0 && !activeCategory) {
       const categories = [...new Set(menuItems.map(item => item.category || 'Other'))]
@@ -62,15 +60,14 @@ const CustomerMenu = () => {
     }
   }, [menuItems, activeCategory])
 
+  // ✅ SCROLL OBSERVER
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             const category = entry.target.dataset.category
-            if (category) {
-              setActiveCategory(category)
-            }
+            if (category) setActiveCategory(category)
           }
         })
       },
@@ -87,11 +84,10 @@ const CustomerMenu = () => {
     return () => observer.disconnect()
   }, [menuItems])
 
+  // ✅ GROUP BY CATEGORY
   const groupedItems = menuItems.reduce((groups, item) => {
     const category = item.category || 'Other'
-    if (!groups[category]) {
-      groups[category] = []
-    }
+    if (!groups[category]) groups[category] = []
     groups[category].push(item)
     return groups
   }, {})
@@ -99,31 +95,29 @@ const CustomerMenu = () => {
   const categories = Object.keys(groupedItems)
 
   const handleCategoryClick = (category) => {
-  setActiveCategory(category)
+    setActiveCategory(category)
 
-  setTimeout(() => {
-    const categoryElement = categoryRefs.current[category]
-    if (categoryElement) {
-      const navHeight = document.querySelector('.category-navigation')?.offsetHeight || 0
-      const headerHeight = document.querySelector('.menu-header')?.offsetHeight || 0
+    setTimeout(() => {
+      const el = categoryRefs.current[category]
+      if (el) {
+        const navHeight = document.querySelector('.category-navigation')?.offsetHeight || 0
+        const headerHeight = document.querySelector('.menu-header')?.offsetHeight || 0
 
-      const totalOffset = navHeight + headerHeight + 10
+        const offset = navHeight + headerHeight + 10
+        const top = el.getBoundingClientRect().top + window.pageYOffset
 
-      const elementPosition =
-        categoryElement.getBoundingClientRect().top + window.pageYOffset
+        window.scrollTo({
+          top: top - offset,
+          behavior: 'smooth'
+        })
+      }
+    }, 100)
+  }
 
-      const offsetPosition = elementPosition - totalOffset
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      })
-    }
-  }, 100)
-}
-
+  // ❌ NO TABLE
   if (!tableNumber) return <TableError />
 
+  // ⏳ LOADING
   if (loading) {
     return (
       <div className="customer-menu">
@@ -134,34 +128,27 @@ const CustomerMenu = () => {
     )
   }
 
-  if (error) {
-    return (
-      <div className="customer-menu">
-        <div className="error">
-          <h1>Error</h1>
-          <p>{error}</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="customer-menu">
+
+      {/* HEADER */}
       <div className="menu-header">
         <h1>Restaurant Menu</h1>
         <p className="table-info">Table {tableNumber}</p>
       </div>
 
+      {/* CATEGORY NAV */}
       <CategoryNavigation
         categories={categories}
         activeCategory={activeCategory}
         onCategoryClick={handleCategoryClick}
       />
 
+      {/* MENU */}
       <div className="menu-content">
         {categories.map(category => (
-          <div 
-            key={category} 
+          <div
+            key={category}
             className="category-section"
             ref={el => {
               categoryRefs.current[category] = el
@@ -173,7 +160,10 @@ const CustomerMenu = () => {
 
             <div className="items-grid">
               {groupedItems[category].map(item => (
-                <MenuItem key={item._id || item.name} item={item} />
+                <MenuItem
+                  key={item._id || item.name}
+                  item={item}   // 🔥 IMPORTANT (full object)
+                />
               ))}
             </div>
           </div>
@@ -182,6 +172,7 @@ const CustomerMenu = () => {
 
       <CartButton />
 
+      {/* STYLES */}
       <style jsx>{`
         .customer-menu {
           padding-bottom: 100px;
@@ -211,7 +202,7 @@ const CustomerMenu = () => {
 
         .category-section {
           margin-bottom: 3rem;
-           scroll-margin-top: 140px;
+          scroll-margin-top: 140px;
         }
 
         .category-title {
@@ -226,6 +217,11 @@ const CustomerMenu = () => {
         .items-grid {
           display: grid;
           gap: 1rem;
+        }
+
+        .loading {
+          text-align: center;
+          padding: 3rem;
         }
       `}</style>
     </div>
