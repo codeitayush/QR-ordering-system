@@ -9,25 +9,35 @@ export const AdminAuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem('token')
+
     if (token) {
+      // ✅ KEEP TOKEN PROPERLY
       setAdmin({ token })
     }
+
     setLoading(false)
   }, [])
 
   const login = async (credentials) => {
     try {
       const response = await adminAPI.login(credentials)
+
       const { token, admin: adminData } = response.data.data
-      
+
+      // ✅ SAVE TOKEN
       localStorage.setItem('token', token)
-      setAdmin({ ...adminData, token })
-      
+
+      // ✅ SAVE FULL ADMIN DATA
+      setAdmin({
+        ...adminData,
+        token
+      })
+
       return { success: true }
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Login failed' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Login failed'
       }
     }
   }
@@ -42,7 +52,7 @@ export const AdminAuthProvider = ({ children }) => {
     login,
     logout,
     loading,
-    isAuthenticated: !!admin
+    isAuthenticated: !!admin?.token   // ✅ FIXED
   }
 
   return (
@@ -54,8 +64,10 @@ export const AdminAuthProvider = ({ children }) => {
 
 export const useAdminAuth = () => {
   const context = useContext(AdminAuthContext)
+
   if (!context) {
-    throw new Error('useAdminAuth must be used within an AdminAuthProvider')
+    throw new Error('useAdminAuth must be used within AdminAuthProvider')
   }
+
   return context
 }
