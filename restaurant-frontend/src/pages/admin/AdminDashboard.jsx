@@ -6,6 +6,7 @@ import { io } from 'socket.io-client'
 
 const AdminDashboard = () => {
   const [orders, setOrders] = useState([])
+  const [analytics, setAnalytics] = useState(null)
   const [newOrderIds, setNewOrderIds] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -16,6 +17,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchOrders()
+    fetchAnalytics()
 
     const socket = io(import.meta.env.VITE_API_URL.replace('/api', ''))
 
@@ -48,6 +50,15 @@ const AdminDashboard = () => {
       setError('Failed to fetch orders')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchAnalytics = async () => {
+    try {
+      const response = await orderAPI.getAnalytics()
+      setAnalytics(response.data.data)
+    } catch (error) {
+      console.error('Failed to fetch analytics:', error)
     }
   }
 
@@ -107,6 +118,24 @@ const AdminDashboard = () => {
   <button className="logout" onClick={handleLogout}>Logout</button>
 </div>
       </div>
+
+      {/* Analytics Section */}
+      {analytics && (
+        <div className="analytics-section">
+          <div className="analytics-card">
+            <h3>Orders Today</h3>
+            <p className="analytics-value">{analytics.totalOrders}</p>
+          </div>
+          <div className="analytics-card">
+            <h3>Revenue</h3>
+            <p className="analytics-value">₹{analytics.totalRevenue}</p>
+          </div>
+          <div className="analytics-card">
+            <h3>Most Ordered</h3>
+            <p className="analytics-value">{analytics.mostOrderedItem}</p>
+          </div>
+        </div>
+      )}
 
       <div className="kanban-board">
         {Object.entries(groupedOrders).map(([status, list]) => (
@@ -196,6 +225,38 @@ const AdminDashboard = () => {
   border: none;
   cursor: pointer;
   font-weight: 500;
+}
+
+/* ANALYTICS */
+.analytics-section {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.analytics-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  min-width: 200px;
+  text-align: center;
+}
+
+.analytics-card h3 {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.analytics-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
 }
 
 /* Logout */

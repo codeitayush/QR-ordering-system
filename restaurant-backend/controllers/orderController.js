@@ -107,8 +107,62 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+// GET ANALYTICS (ADMIN)
+const getAnalytics = async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+
+    const todayOrders = await Order.find({
+      createdAt: { $gte: today }
+    });
+
+    const totalOrders = todayOrders.length;
+    const totalRevenue = todayOrders.reduce(
+      (total, order) => total + (order.totalAmount || 0),
+      0
+    );
+
+    // Calculate most ordered item
+    const itemCounts = {};
+    todayOrders.forEach(order => {
+      order.items.forEach(item => {
+        const itemName = item.name || 'Unknown';
+        itemCounts[itemName] = (itemCounts[itemName] || 0) + (item.quantity || 1);
+      });
+    });
+
+    let mostOrderedItem = 'None';
+    let maxCount = 0;
+    for (const [itemName, count] of Object.entries(itemCounts)) {
+      if (count > maxCount) {
+        maxCount = count;
+        mostOrderedItem = itemName;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalOrders,
+        totalRevenue,
+        mostOrderedItem
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching analytics'
+    });
+  }
+};
+
 module.exports = {
   createOrder,
   getAllOrders,
-  updateOrderStatus
+  updateOrderStatus,
+  getAnalytics
 };

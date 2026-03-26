@@ -4,7 +4,8 @@ const router = express.Router();
 const {
   createOrder,
   getAllOrders,
-  updateOrderStatus
+  updateOrderStatus,
+  getAnalytics
 } = require('../controllers/orderController');
 
 const authMiddleware = require('../middleware/authMiddleware');
@@ -17,5 +18,8 @@ router.get('/', authMiddleware, getAllOrders);
 
 // PUT /api/orders/:id/status - Admin only - Update order status
 router.put('/:id/status', authMiddleware, updateOrderStatus);
+
+// GET /api/orders/analytics - Admin only - Get analytics
+router.get('/analytics', authMiddleware, getAnalytics);
 
 module.exports = router;
