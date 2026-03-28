@@ -3,8 +3,6 @@ const Order = require('../models/Order');
 // CREATE ORDER
 const createOrder = async (req, res) => {
   try {
-    console.log("CREATE ORDER HIT", req.body);
-
     const { tableNumber, items } = req.body;
 
     if (!tableNumber || !items || items.length === 0) {
@@ -37,7 +35,6 @@ const createOrder = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-
     res.status(400).json({
       success: false,
       message: 'Error creating order'
@@ -45,8 +42,7 @@ const createOrder = async (req, res) => {
   }
 };
 
-
-// GET ORDERS (ADMIN)
+// GET ALL ORDERS
 const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find().sort({ createdAt: -1 });
@@ -58,7 +54,6 @@ const getAllOrders = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-
     res.status(500).json({
       success: false,
       message: 'Error fetching orders'
@@ -66,8 +61,7 @@ const getAllOrders = async (req, res) => {
   }
 };
 
-
-// UPDATE STATUS (ADMIN)
+// UPDATE STATUS
 const updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -99,7 +93,6 @@ const updateOrderStatus = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-
     res.status(400).json({
       success: false,
       message: 'Error updating order'
@@ -107,11 +100,11 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-// GET ANALYTICS (ADMIN)
+// BASIC ANALYTICS
 const getAnalytics = async (req, res) => {
   try {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Start of today
+    today.setHours(0, 0, 0, 0);
 
     const todayOrders = await Order.find({
       createdAt: { $gte: today }
@@ -123,21 +116,21 @@ const getAnalytics = async (req, res) => {
       0
     );
 
-    // Calculate most ordered item
     const itemCounts = {};
     todayOrders.forEach(order => {
       order.items.forEach(item => {
-        const itemName = item.name || 'Unknown';
-        itemCounts[itemName] = (itemCounts[itemName] || 0) + (item.quantity || 1);
+        const name = item.name || 'Unknown';
+        itemCounts[name] = (itemCounts[name] || 0) + item.quantity;
       });
     });
 
     let mostOrderedItem = 'None';
-    let maxCount = 0;
-    for (const [itemName, count] of Object.entries(itemCounts)) {
-      if (count > maxCount) {
-        maxCount = count;
-        mostOrderedItem = itemName;
+    let max = 0;
+
+    for (const [name, count] of Object.entries(itemCounts)) {
+      if (count > max) {
+        max = count;
+        mostOrderedItem = name;
       }
     }
 
@@ -152,10 +145,105 @@ const getAnalytics = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-
     res.status(500).json({
       success: false,
       message: 'Error fetching analytics'
+    });
+  }
+};
+
+// 🔥 ADVANCED ANALYTICS
+const getAdvancedAnalytics = async (req, res) => {
+  console.log("🔥 ADVANCED ANALYTICS HIT");
+  try {
+    const orders = await Order.find();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const todayOrders = orders.filter(o => new Date(o.createdAt) >= today);
+
+    const totalOrdersToday = todayOrders.length;
+    const totalRevenueToday = todayOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+    const averageOrderValue = totalOrdersToday
+      ? totalRevenueToday / totalOrdersToday
+      : 0;
+
+    // Hourly distribution
+    const hourlyOrderDistribution = Array(24).fill(0);
+    todayOrders.forEach(order => {
+      const hour = new Date(order.createdAt).getHours();
+      hourlyOrderDistribution[hour]++;
+    });
+
+    // Top items
+    const itemCounts = {};
+    todayOrders.forEach(order => {
+      order.items.forEach(item => {
+        itemCounts[item.name] = (itemCounts[item.name] || 0) + item.quantity;
+      });
+    });
+
+    const top5Items = Object.entries(itemCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    // Status count
+    const ordersByStatus = {
+      Preparing: 0,
+      Ready: 0,
+      Served: 0
+    };
+
+    todayOrders.forEach(order => {
+      if (ordersByStatus[order.status] !== undefined) {
+        ordersByStatus[order.status]++;
+      }
+    });
+
+    // Monthly comparison
+    const now = new Date();
+    const firstDayThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+
+    const thisMonthOrders = orders.filter(o => new Date(o.createdAt) >= firstDayThisMonth);
+
+    const lastMonthOrders = orders.filter(o => {
+      const d = new Date(o.createdAt);
+      return d >= firstDayLastMonth && d <= lastDayLastMonth;
+    });
+
+    const monthlyComparison = {
+      thisMonth: {
+        orders: thisMonthOrders.length,
+        revenue: thisMonthOrders.reduce((sum, o) => sum + o.totalAmount, 0)
+      },
+      lastMonth: {
+        orders: lastMonthOrders.length,
+        revenue: lastMonthOrders.reduce((sum, o) => sum + o.totalAmount, 0)
+      }
+    };
+
+    res.json({
+      success: true,
+      data: {
+        totalOrdersToday,
+        totalRevenueToday,
+        averageOrderValue,
+        hourlyOrderDistribution,
+        top5Items,
+        ordersByStatus,
+        monthlyComparison
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Advanced analytics error'
     });
   }
 };
@@ -164,5 +252,6 @@ module.exports = {
   createOrder,
   getAllOrders,
   updateOrderStatus,
-  getAnalytics
+  getAnalytics,
+  getAdvancedAnalytics
 };

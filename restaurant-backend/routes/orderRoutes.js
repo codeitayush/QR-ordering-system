@@ -5,21 +5,25 @@ const {
   createOrder,
   getAllOrders,
   updateOrderStatus,
-  getAnalytics
+  getAnalytics,
+  getAdvancedAnalytics // ✅ ADD
 } = require('../controllers/orderController');
 
 const authMiddleware = require('../middleware/authMiddleware');
 
-// POST /api/orders - Public route for customers to create orders
+// CREATE ORDER
 router.post('/', createOrder);
 
-// GET /api/orders - Admin only - Get all orders
+// GET ALL ORDERS
 router.get('/', authMiddleware, getAllOrders);
 
-// PUT /api/orders/:id/status - Admin only - Update order status
+// UPDATE STATUS
 router.put('/:id/status', authMiddleware, updateOrderStatus);
 
-// GET /api/orders/analytics - Admin only - Get analytics
+// BASIC ANALYTICS
 router.get('/analytics', authMiddleware, getAnalytics);
+
+// 🔥 ADVANCED ANALYTICS (NEW)
+router.get('/advanced-analytics', getAdvancedAnalytics);
 
 module.exports = router;

@@ -49,7 +49,8 @@ export const orderAPI = {
   createOrder: (data) => api.post('/orders', data),
   getAllOrders: () => api.get('/orders'),
   updateOrderStatus: (id, status) => api.put(`/orders/${id}/status`, { status }),
-  getAnalytics: () => api.get('/orders/analytics')
+  getAnalytics: () => api.get('/orders/analytics'),
+  getAdvancedAnalytics: () => api.get('/orders/advanced-analytics')
 }
 
 export const adminAPI = {

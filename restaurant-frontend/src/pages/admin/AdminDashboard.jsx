@@ -116,6 +116,7 @@ const AdminDashboard = () => {
   )}
 
   <button className="logout" onClick={handleLogout}>Logout</button>
+  <button className="analytics-btn" onClick={() => navigate('/admin/analytics')}>View Analytics</button>
 </div>
       </div>
 
@@ -262,6 +263,12 @@ const AdminDashboard = () => {
 /* Logout */
 .logout {
   background: #ff6b6b;
+  color: white;
+}
+
+/* Analytics Button */
+.analytics-btn {
+  background: #4caf50;
   color: white;
 }
 
