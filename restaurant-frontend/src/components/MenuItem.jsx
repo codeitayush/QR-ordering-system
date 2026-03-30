@@ -25,119 +25,159 @@ const MenuItem = ({ item }) => {
   }
 
   return (
-    <div className="card">
+    <div className="menu-item-card">
       
-      <div className="info">
-        <h3 className="name">{item.name}</h3>
+      <div className="item-info">
+        <h3 className="item-name">{item.name}</h3>
 
         {item.description && (
-          <p className="desc">{item.description}</p>
+          <p className="item-desc">{item.description}</p>
         )}
 
-        <div className="bottom">
-          <span className="price">₹{item.price}</span>
-        </div>
+        <div className="item-price">₹{item.price}</div>
       </div>
 
-      <div className="imageBox">
-        <img src={item.image || `https://picsum.photos/seed/${item.name}/300`} />
+      <div className="item-image-box">
+        <img src={item.image || `https://picsum.photos/seed/${item.name}/300`} className="item-image" />
 
         {quantity === 0 ? (
-          <button className="addBtn" onClick={handleAdd}>
+          <button className="add-btn" onClick={handleAdd}>
             ADD
           </button>
         ) : (
-          <div className="qtyBox">
-            <button onClick={() => handleChange(quantity - 1)}>-</button>
-            <span>{quantity}</span>
-            <button onClick={() => handleChange(quantity + 1)}>+</button>
+          <div className="qty-box">
+            <button className="qty-btn" onClick={() => handleChange(quantity - 1)}>-</button>
+            <span className="qty-text">{quantity}</span>
+            <button className="qty-btn" onClick={() => handleChange(quantity + 1)}>+</button>
           </div>
         )}
       </div>
 
       <style jsx>{`
-        .card {
+        .menu-item-card {
+          background: #ffffff;
+          border-radius: 16px;
+          padding: 14px;
+          box-shadow: 0 6px 20px rgba(0,0,0,0.06);
           display: flex;
           justify-content: space-between;
+          align-items: center;
           gap: 12px;
-          padding: 14px;
-          margin-bottom: 16px;
-          background: ${theme.cardBackground};
-          border-radius: 16px;
-          box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+          transition: all 0.2s ease;
         }
 
-        .info {
+        .menu-item-card:hover {
+          box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        .item-info {
           flex: 1;
+          display: flex;
+          flex-direction: column;
         }
 
-        .name {
-          font-size: 1.05rem;
+        .item-name {
+          font-size: 16px;
           font-weight: 600;
-          color: ${theme.text};
+          color: #2c3e50;
+          margin-bottom: 4px;
+          line-height: 1.3;
         }
 
-        .desc {
-          font-size: 0.85rem;
+        .item-desc {
+          font-size: 13px;
           color: #777;
+          margin-bottom: 8px;
+          line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
-        .price {
-          font-size: 1.15rem;
+        .item-price {
+          font-size: 16px;
           font-weight: 700;
-          color: ${theme.primary};
+          color: #ff4d8d;
         }
 
-        .imageBox {
+        .item-image-box {
           position: relative;
-          width: 95px;
-          height: 90px;
+          width: 60px;
+          height: 60px;
+          flex-shrink: 0;
         }
 
-        .imageBox img {
-          width: 100%;
-          height: 100%;
+        .item-image {
+          width: 60px;
+          height: 60px;
           object-fit: cover;
-          border-radius: 14px;
+          border-radius: 12px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        .addBtn {
+        .add-btn {
           position: absolute;
-          bottom: -10px;
+          bottom: -8px;
           left: 50%;
           transform: translateX(-50%);
           background: white;
-          color: ${theme.primary};
-          border: 2px solid ${theme.primary};
-          padding: 6px 18px;
+          border: 1px solid #ff4d8d;
+          color: #ff4d8d;
           border-radius: 12px;
-          font-weight: 700;
+          padding: 6px 12px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
         }
 
-        .qtyBox {
+        .add-btn:hover {
+          background: #ff4d8d;
+          color: white;
+        }
+
+        .qty-box {
           position: absolute;
-          bottom: -10px;
+          bottom: -8px;
           left: 50%;
           transform: translateX(-50%);
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 4px;
+          background: #ff4d8d;
+          border-radius: 20px;
+          padding: 4px 8px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .qty-btn {
           background: white;
-          padding: 6px 12px;
-          border-radius: 12px;
-        }
-
-        .qtyBox button {
-          background: ${theme.primary};
-          color: white;
+          color: #ff4d8d;
           border: none;
-          width: 26px;
-          height: 26px;
-          border-radius: 8px;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          font-weight: 700;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          transition: all 0.2s ease;
         }
 
-        .qtyBox span {
-          font-weight: 700;
+        .qty-btn:hover {
+          background: #f5f5f5;
+        }
+
+        .qty-text {
+          color: white;
+          font-weight: 600;
+          font-size: 12px;
+          min-width: 16px;
+          text-align: center;
         }
       `}</style>
     </div>

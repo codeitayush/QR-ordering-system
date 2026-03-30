@@ -1,5 +1,4 @@
 import { useRef } from 'react'
-import { theme } from '../theme/colors'
 
 const CategoryNavigation = ({ categories, activeCategory, onCategoryClick }) => {
   const scrollRef = useRef(null)
@@ -39,21 +38,19 @@ const CategoryNavigation = ({ categories, activeCategory, onCategoryClick }) => 
       <style jsx>{`
         .wrapper {
           position: sticky;
-          top: 0;
-          z-index: 1000;
-          background: ${theme.background};
-          padding: 12px 0 6px;
-          margin-bottom: 6px;
-          border-bottom: 1px solid rgba(0,0,0,0.05);
+          top: 60px;
+          background: #ffffff;
+          border-bottom: 1px solid #eee;
+          padding: 6px 10px;
+          margin: 0;
+          z-index: 90;
         }
 
         .tabs {
           display: flex;
-          gap: 12px;
+          gap: 6px;
           overflow-x: auto;
-          padding: 0 16px;
-          scroll-behavior: smooth;
-          scroll-snap-type: x mandatory;
+          padding: 4px 2px;
         }
 
         .tabs::-webkit-scrollbar {
@@ -61,46 +58,21 @@ const CategoryNavigation = ({ categories, activeCategory, onCategoryClick }) => 
         }
 
         .tab {
-          flex-shrink: 0;
-          scroll-snap-align: center;
-
-          font-size: 0.9rem;
-          font-weight: 500;
-          color: #666;
-
-          background: rgba(0,0,0,0.03);
+          padding: 6px 12px;
+          border-radius: 14px;
+          background: #f1f1f1;
           border: none;
-          border-radius: 18px;
-
-          padding: 8px 14px;
-          cursor: pointer;
+          font-size: 13px;
+          color: #555;
           white-space: nowrap;
-
+          font-weight: 500;
           transition: all 0.2s ease;
         }
 
-        .tab:hover {
-          background: rgba(0,0,0,0.06);
-        }
-
         .tab.active {
-          background: rgba(255, 120, 172, 0.12);
-          color: ${theme.primary};
-          font-weight: 600;
-        }
-
-        .tab.active::after {
-          content: "";
-          display: block;
-          height: 3px;
-          width: 60%;
-          margin: 6px auto 0;
-          background: ${theme.primary};
-          border-radius: 2px;
-        }
-
-        .tab:active {
-          transform: scale(0.94);
+          background: #ff4d8d;
+          color: white;
+          transform: scale(1.03);
         }
 
         @media (min-width: 768px) {

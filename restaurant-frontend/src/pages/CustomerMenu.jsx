@@ -175,53 +175,96 @@ const CustomerMenu = () => {
       {/* STYLES */}
       <style jsx>{`
         .customer-menu {
-          padding-bottom: 100px;
-          background-color: ${theme.background};
+          max-width: 480px;
+          margin: auto;
+          background: #F2F0EA;
           min-height: 100vh;
         }
 
         .menu-header {
-          text-align: center;
-          margin-bottom: 1rem;
-          padding: 1rem;
+          position: fixed;
+          top: 0;
+          width: 100%;
+          background: #ffffff;
+          border-bottom: 1px solid #eee;
+          z-index: 100;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          transition: transform 0.25s ease;
         }
 
-        .menu-header h1 {
-          font-size: 1.8rem;
-          color: ${theme.text};
+        .menu-header.hide {
+          transform: translateY(-100%);
         }
 
-        .table-info {
-          color: ${theme.text};
-          opacity: 0.7;
+        .menu-header.show {
+          transform: translateY(0);
+        }
+
+        .header-inner {
+          width: 100%;
+          max-width: 480px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          padding: 8px 14px;
+        }
+
+        .header-inner img {
+          width: 36px;
+          height: 36px;
+          border-radius: 8px;
+        }
+
+        .header-inner h1 {
+          font-size: 17px;
+          margin: 0;
+          color: #222;
+          font-weight: 600;
+        }
+
+        .header-inner p {
+          font-size: 12px;
+          margin: 0;
+          color: #888;
         }
 
         .menu-content {
-          padding: 0 1rem;
+          padding-top: 100px;
+          padding: 100px 12px 20px;
         }
 
         .category-section {
-          margin-bottom: 3rem;
-          scroll-margin-top: 140px;
+          margin-bottom: 20px;
         }
 
         .category-title {
-          font-size: 1.4rem;
-          margin-bottom: 1rem;
-          padding: 0.8rem 1rem;
-          background: ${theme.secondary};
-          color: white;
-          border-radius: 10px;
+          font-size: 18px;
+          font-weight: 600;
+          margin: 16px 0 8px;
+          padding-left: 10px;
+          position: relative;
+          color: #333;
+        }
+
+        .category-title::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 4px;
+          height: 18px;
+          background: #ff4d8d;
+          border-radius: 2px;
         }
 
         .items-grid {
-          display: grid;
-          gap: 1rem;
-        }
-
-        .loading {
-          text-align: center;
-          padding: 3rem;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
         }
       `}</style>
     </div>

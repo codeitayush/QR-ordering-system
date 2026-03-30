@@ -42,24 +42,21 @@ const CartButton = () => {
 
         .cart-bar {
           width: 100%;
-          background: ${theme.primary};
+          background: #ff4d8d;
           color: white;
           border: none;
-          border-radius: 14px;
-          padding: 14px 16px;
+          border-radius: 16px;
+          padding: 12px 16px;
           display: flex;
           justify-content: space-between;
           align-items: center;
           cursor: pointer;
-          
-          /* 🔥 premium feel */
-          box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-          transition: transform 0.15s ease, box-shadow 0.15s ease;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+          transition: all 0.2s ease;
         }
 
-        .cart-bar:active {
-          transform: scale(0.98);
-          box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        .cart-bar:hover {
+          box-shadow: 0 10px 28px rgba(0,0,0,0.18);
         }
 
         .left {
@@ -70,25 +67,20 @@ const CartButton = () => {
         .items {
           font-size: 0.85rem;
           opacity: 0.9;
+          font-weight: 500;
         }
 
         .price {
-          font-size: 1.2rem;
+          font-size: 1.3rem;
           font-weight: 700;
         }
 
         .right {
           font-size: 1rem;
           font-weight: 600;
-        }
-
-        @media (min-width: 768px) {
-          .cart-wrapper {
-            max-width: 600px;
-            margin: 0 auto;
-            left: 0;
-            right: 0;
-          }
+          display: flex;
+          align-items: center;
+          gap: 4px;
         }
       `}</style>
     </div>
