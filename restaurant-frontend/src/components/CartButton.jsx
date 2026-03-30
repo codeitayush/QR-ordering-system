@@ -34,29 +34,34 @@ const CartButton = () => {
       <style jsx>{`
         .cart-wrapper {
           position: fixed;
-          bottom: 12px;
-          left: 12px;
-          right: 12px;
+          bottom: 20px;
+          left: 16px;
+          right: 16px;
           z-index: 1000;
         }
 
         .cart-bar {
           width: 100%;
-          background: #ff4d8d;
+          background: linear-gradient(135deg, #ff4d8d, #ff6b9d);
           color: white;
           border: none;
           border-radius: 16px;
-          padding: 12px 16px;
+          padding: 16px 24px;
           display: flex;
           justify-content: space-between;
           align-items: center;
           cursor: pointer;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-          transition: all 0.2s ease;
+          box-shadow: 0 8px 24px rgba(255, 77, 141, 0.3);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .cart-bar:hover {
-          box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+          box-shadow: 0 12px 32px rgba(255, 77, 141, 0.4);
+          transform: translateY(-2px);
+        }
+
+        .cart-bar:active {
+          transform: translateY(0);
         }
 
         .left {
@@ -65,22 +70,24 @@ const CartButton = () => {
         }
 
         .items {
-          font-size: 0.85rem;
+          font-size: 13px;
           opacity: 0.9;
           font-weight: 500;
+          margin-bottom: 4px;
         }
 
         .price {
-          font-size: 1.3rem;
+          font-size: 20px;
           font-weight: 700;
+          letter-spacing: -0.02em;
         }
 
         .right {
-          font-size: 1rem;
+          font-size: 15px;
           font-weight: 600;
           display: flex;
           align-items: center;
-          gap: 4px;
+          gap: 8px;
         }
       `}</style>
     </div>

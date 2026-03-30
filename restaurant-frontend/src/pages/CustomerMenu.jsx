@@ -73,7 +73,7 @@ const CustomerMenu = () => {
       },
       {
         threshold: 0.3,
-        rootMargin: '-100px 0px -60% 0px'
+        rootMargin: '-152px 0px -60% 0px'
       }
     )
 
@@ -100,14 +100,15 @@ const CustomerMenu = () => {
     setTimeout(() => {
       const el = categoryRefs.current[category]
       if (el) {
-        const navHeight = document.querySelector('.category-navigation')?.offsetHeight || 0
-        const headerHeight = document.querySelector('.menu-header')?.offsetHeight || 0
+        const headerHeight = 68
+        const categoryHeight = 68
+        const visualGap = 16
 
-        const offset = navHeight + headerHeight + 10
-        const top = el.getBoundingClientRect().top + window.pageYOffset
+        const offset = headerHeight + categoryHeight + visualGap
+        const y = el.getBoundingClientRect().top + window.pageYOffset - offset
 
         window.scrollTo({
-          top: top - offset,
+          top: y,
           behavior: 'smooth'
         })
       }
@@ -133,8 +134,13 @@ const CustomerMenu = () => {
 
       {/* HEADER */}
       <div className="menu-header">
-        <h1>Restaurant Menu</h1>
-        <p className="table-info">Table {tableNumber}</p>
+        <div className="header-inner">
+          <img src="/logo192.png" alt="Restaurant" />
+          <div className="header-info">
+            <h1>Restaurant Menu</h1>
+            <p>Table {tableNumber}</p>
+          </div>
+        </div>
       </div>
 
       {/* CATEGORY NAV */}
@@ -175,9 +181,11 @@ const CustomerMenu = () => {
       {/* STYLES */}
       <style jsx>{`
         .customer-menu {
-          max-width: 480px;
-          margin: auto;
-          background: #F2F0EA;
+          width: 100%;
+          max-width: 100%;
+          margin: 0;
+          padding: 0;
+          background: #fafafa;
           min-height: 100vh;
         }
 
@@ -186,12 +194,13 @@ const CustomerMenu = () => {
           top: 0;
           width: 100%;
           background: #ffffff;
-          border-bottom: 1px solid #eee;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
           z-index: 100;
           display: flex;
           justify-content: center;
           align-items: center;
-          transition: transform 0.25s ease;
+          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
         }
 
         .menu-header.hide {
@@ -204,67 +213,62 @@ const CustomerMenu = () => {
 
         .header-inner {
           width: 100%;
-          max-width: 480px;
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          gap: 10px;
-          padding: 8px 14px;
+          justify-content: flex-start;
+          gap: 12px;
+          padding: 12px 16px;
         }
 
         .header-inner img {
-          width: 36px;
-          height: 36px;
-          border-radius: 8px;
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        }
+
+        .header-info {
+          flex: 1;
         }
 
         .header-inner h1 {
-          font-size: 17px;
-          margin: 0;
-          color: #222;
-          font-weight: 600;
+          font-size: 20px;
+          margin: 0 0 2px 0;
+          color: #1a1a1a;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          line-height: 1.2;
         }
 
         .header-inner p {
-          font-size: 12px;
+          font-size: 14px;
           margin: 0;
-          color: #888;
+          color: #777;
+          font-weight: 500;
         }
 
         .menu-content {
-          padding-top: 100px;
-          padding: 100px 12px 20px;
+          padding-top: 104px;
+          padding: 104px 0 100px;
         }
 
         .category-section {
-          margin-bottom: 20px;
+          margin-bottom: 16px;
         }
 
         .category-title {
-          font-size: 18px;
-          font-weight: 600;
-          margin: 16px 0 8px;
-          padding-left: 10px;
-          position: relative;
-          color: #333;
-        }
-
-        .category-title::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 4px;
-          height: 18px;
-          background: #ff4d8d;
-          border-radius: 2px;
+          font-size: 22px;
+          font-weight: 700;
+          margin: 0 0 12px 16px;
+          color: #1a1a1a;
+          letter-spacing: -0.03em;
+          line-height: 1.2;
         }
 
         .items-grid {
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 8px;
         }
       `}</style>
     </div>
