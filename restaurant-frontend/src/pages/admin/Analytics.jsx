@@ -2,14 +2,18 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAdminAuth } from '../../context/AdminAuthContext'
 import { orderAPI } from '../../services/api'
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import {
+  LineChart, Line,
+  PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer
+} from 'recharts'
 import { theme } from '../../theme/colors'
 
 const Analytics = () => {
   const [analytics, setAnalytics] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  
+
   const navigate = useNavigate()
   const { logout } = useAdminAuth()
 
@@ -19,435 +23,306 @@ const Analytics = () => {
 
   const fetchAnalytics = async () => {
     try {
-      const response = await orderAPI.getAdvancedAnalytics()
-      setAnalytics(response.data.data)
-      setError('')
-    } catch (error) {
-      console.error('Failed to fetch analytics:', error)
-      setError('Failed to fetch analytics')
+      const res = await orderAPI.getAdvancedAnalytics()
+      setAnalytics(res.data.data)
+    } catch (err) {
+      console.error(err)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleLogout = () => {
-    logout()
-    navigate('/admin/login')
-  }
-
-  const handleBackToDashboard = () => {
-    navigate('/admin/dashboard')
-  }
-
-  // Prepare hourly data for chart
-  const hourlyData = analytics?.hourlyOrderDistribution?.map((count, hour) => ({
-    hour: `${hour}:00`,
-    orders: count
-  })) || []
-
-  // Prepare status data for pie chart
-  const statusData = analytics?.ordersByStatus ? [
-    { name: 'Preparing', value: analytics.ordersByStatus.Preparing, color: '#FF78AC' },
-    { name: 'Ready', value: analytics.ordersByStatus.Ready, color: '#A8D5E3' },
-    { name: 'Served', value: analytics.ordersByStatus.Served, color: '#F8BBD0' }
-  ] : []
-
-  // Calculate growth percentages
   const calculateGrowth = (current, previous) => {
-    if (previous === 0) return current > 0 ? 100 : 0
-    return ((current - previous) / previous * 100).toFixed(1)
+    if (previous === 0) return current > 0 ? "New Activity 🚀" : "0%"
+    return ((current - previous) / previous * 100).toFixed(1) + "%"
   }
-
-  const ordersGrowth = calculateGrowth(
-    analytics?.monthlyComparison?.thisMonth?.orders || 0,
-    analytics?.monthlyComparison?.lastMonth?.orders || 0
-  )
-
-  const revenueGrowth = calculateGrowth(
-    analytics?.monthlyComparison?.thisMonth?.revenue || 0,
-    analytics?.monthlyComparison?.lastMonth?.revenue || 0
-  )
 
   if (loading) return <div className="loading">Loading analytics...</div>
 
-  if (error) return <div className="error">{error}</div>
+  // 📊 Hourly
+  const hourlyData = analytics.hourlyOrderDistribution.map((c, i) => ({
+    hour: `${i}:00`,
+    orders: c
+  }))
+
+  // 🍽️ Status
+  const statusData = [
+    { name: 'Preparing', value: analytics.ordersByStatus.Preparing, color: '#FF78AC' },
+    { name: 'Ready', value: analytics.ordersByStatus.Ready, color: '#A8D5E3' },
+    { name: 'Served', value: analytics.ordersByStatus.Served, color: '#F8BBD0' }
+  ]
 
   return (
-    <div className="analytics-page">
-      <div className="analytics-header">
-        <h1>Advanced Analytics</h1>
-        <div className="header-buttons">
-          <button className="back-btn" onClick={handleBackToDashboard}>← Back to Dashboard</button>
-          <button className="logout" onClick={handleLogout}>Logout</button>
+    <div className="page">
+
+      {/* HEADER */}
+      <div className="header">
+        <h1>📊 Advanced Analytics</h1>
+        <div className="actions">
+          <button className="btn secondary" onClick={() => navigate('/admin/dashboard')}>
+            ← Dashboard
+          </button>
+          <button className="btn danger" onClick={() => { logout(); navigate('/admin/login') }}>
+            Logout
+          </button>
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="summary-cards">
-        <div className="summary-card">
-          <h3>Orders Today</h3>
-          <p className="value">{analytics?.totalOrdersToday || 0}</p>
-        </div>
-        <div className="summary-card">
-          <h3>Revenue Today</h3>
-          <p className="value">₹{analytics?.totalRevenueToday || 0}</p>
-        </div>
-        <div className="summary-card">
-          <h3>Avg Order Value</h3>
-          <p className="value">₹{analytics?.averageOrderValue?.toFixed(2) || 0}</p>
+      {/* SUMMARY CARDS */}
+      <div className="cards">
+        <Card title="Orders Today" value={analytics.totalOrdersToday} />
+        <Card title="Revenue Today" value={`₹${analytics.totalRevenueToday}`} highlight />
+        <Card title="Avg Order Value" value={`₹${analytics.averageOrderValue.toFixed(2)}`} />
+        <Card title="Peak Hour" value={`${analytics.peakHour}:00`} />
+      </div>
+
+      {/* 🔥 SMART INSIGHTS */}
+      <div className="box premium highlight">
+        <h2>🧠 Smart Insights</h2>
+
+        <div className="insights-grid">
+          <InsightCard
+            title="Best Seller"
+            value={analytics.smartInsights?.bestItem?.name || '—'}
+            sub={`₹${analytics.smartInsights?.bestItem?.revenue || 0}`}
+          />
+
+          <InsightCard
+            title="Avg Orders / Hour"
+            value={analytics.smartInsights?.avgOrdersPerHour}
+          />
+
+          <InsightCard
+            title="Slow Hours"
+            value={
+              analytics.smartInsights?.slowHours?.length
+                ? analytics.smartInsights.slowHours.map(h => `${h.hour}:00`).join(', ')
+                : 'None'
+            }
+          />
+
+          <InsightCard
+            title="Trend"
+            value={analytics.smartInsights?.insight}
+          />
         </div>
       </div>
 
-      {/* Monthly Comparison */}
-      <div className="monthly-comparison">
-        <h2>Monthly Comparison</h2>
-        <div className="comparison-cards">
-          <div className="comparison-card">
+      {/* MONTHLY */}
+      <div className="box premium">
+        <h2>📈 Monthly Performance</h2>
+
+        <div className="monthly">
+          <div>
             <h4>This Month</h4>
-            <div className="metrics">
-              <div>
-                <span className="label">Orders:</span>
-                <span className="value">{analytics?.monthlyComparison?.thisMonth?.orders || 0}</span>
-              </div>
-              <div>
-                <span className="label">Revenue:</span>
-                <span className="value">₹{analytics?.monthlyComparison?.thisMonth?.revenue || 0}</span>
-              </div>
-            </div>
+            <p>Orders: {analytics.monthlyComparison.thisMonth.orders}</p>
+            <p>Revenue: ₹{analytics.monthlyComparison.thisMonth.revenue}</p>
           </div>
-          <div className="comparison-card">
+
+          <div>
             <h4>Last Month</h4>
-            <div className="metrics">
-              <div>
-                <span className="label">Orders:</span>
-                <span className="value">{analytics?.monthlyComparison?.lastMonth?.orders || 0}</span>
-              </div>
-              <div>
-                <span className="label">Revenue:</span>
-                <span className="value">₹{analytics?.monthlyComparison?.lastMonth?.revenue || 0}</span>
-              </div>
-            </div>
+            <p>Orders: {analytics.monthlyComparison.lastMonth.orders}</p>
+            <p>Revenue: ₹{analytics.monthlyComparison.lastMonth.revenue}</p>
           </div>
-          <div className="growth-indicators">
-            <div className={`growth ${ordersGrowth >= 0 ? 'positive' : 'negative'}`}>
-              <span>Orders: {ordersGrowth >= 0 ? '+' : ''}{ordersGrowth}%</span>
-            </div>
-            <div className={`growth ${revenueGrowth >= 0 ? 'positive' : 'negative'}`}>
-              <span>Revenue: {revenueGrowth >= 0 ? '+' : ''}{revenueGrowth}%</span>
-            </div>
+
+          <div className="growthBox">
+            <h4>Growth</h4>
+            <span className="badge green">
+              Orders: {calculateGrowth(
+                analytics.monthlyComparison.thisMonth.orders,
+                analytics.monthlyComparison.lastMonth.orders
+              )}
+            </span>
+            <span className="badge green">
+              Revenue: {calculateGrowth(
+                analytics.monthlyComparison.thisMonth.revenue,
+                analytics.monthlyComparison.lastMonth.revenue
+              )}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Charts Grid */}
-      <div className="charts-grid">
-        {/* Hourly Orders Chart */}
-        <div className="chart-container">
+      {/* CHARTS */}
+      <div className="charts">
+
+        <div className="box">
           <h3>Orders by Hour</h3>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={260}>
             <LineChart data={hourlyData}>
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2}/>
               <XAxis dataKey="hour" />
               <YAxis />
               <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="orders" stroke={theme.primary} strokeWidth={2} />
+              <Line
+                dataKey="orders"
+                stroke={theme.primary}
+                strokeWidth={3}
+                dot={{ r: 4 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Order Status Pie Chart */}
-        <div className="chart-container">
-          <h3>Orders by Status</h3>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="box">
+          <h3>Order Status</h3>
+          <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie
                 data={statusData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={80}
-                fill="#8884d8"
                 dataKey="value"
+                outerRadius={90}
+                label={({ name, value }) => `${name} (${value})`}
               >
-                {statusData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                {statusData.map((e, i) => (
+                  <Cell key={i} fill={e.color} />
                 ))}
               </Pie>
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
         </div>
+
       </div>
 
-      {/* Top Items */}
-      <div className="top-items">
-        <h3>Top 5 Items Today</h3>
-        <div className="items-list">
-          {analytics?.top5Items?.map((item, index) => (
-            <div key={index} className="item-row">
-              <span className="rank">#{index + 1}</span>
-              <span className="item-name">{item.name}</span>
-              <span className="item-count">{item.count} orders</span>
-            </div>
-          ))}
-        </div>
+      {/* TOP ITEMS */}
+      <div className="box premium">
+        <h3>🔥 Top Items Today</h3>
+        {analytics.top5Items.map((item, i) => (
+          <div key={i} className="row">
+            <span>#{i + 1} {item.name}</span>
+            <span>{item.count} orders • ₹{item.revenue}</span>
+          </div>
+        ))}
       </div>
 
+      {/* STYLES */}
       <style jsx>{`
-        .analytics-page {
-          padding: 1rem;
-          background: ${theme.background};
+        .page {
+          padding: 24px;
+          background: linear-gradient(135deg, #f9fafc, #eef1f5);
           min-height: 100vh;
         }
 
-        .loading, .error {
-          text-align: center;
-          padding: 2rem;
-          font-size: 1.2rem;
-          color: ${theme.text};
-        }
-
-        .analytics-header {
+        .header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 2rem;
         }
 
-        .analytics-header h1 {
-          font-size: 2rem;
-          color: ${theme.text};
-          margin: 0;
-        }
-
-        .header-buttons {
-          display: flex;
-          gap: 1rem;
-        }
-
-        .header-buttons button {
-          padding: 8px 16px;
+        .btn {
+          padding: 8px 14px;
           border-radius: 8px;
           border: none;
           cursor: pointer;
-          font-weight: 500;
-          transition: all 0.3s ease;
+          font-weight: 600;
         }
 
-        .back-btn {
-          background: ${theme.secondary};
-          color: ${theme.text};
-        }
+        .secondary { background: #dceef3; }
+        .danger { background: #ff6b6b; color: white; }
 
-        .back-btn:hover {
-          background: #98c5d3;
-        }
-
-        .logout {
-          background: #ff6b6b;
-          color: white;
-        }
-
-        .logout:hover {
-          background: #ff5252;
-        }
-
-        .summary-cards {
+        .cards {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 1rem;
-          margin-bottom: 2rem;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 16px;
+          margin: 20px 0;
         }
 
-        .summary-card {
-          background: ${theme.cardBackground};
-          padding: 1.5rem;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          text-align: center;
+        .box {
+          background: white;
+          padding: 16px;
+          border-radius: 14px;
+          box-shadow: 0 6px 20px rgba(0,0,0,0.08);
         }
 
-        .summary-card h3 {
-          font-size: 0.9rem;
-          color: ${theme.text};
-          opacity: 0.7;
-          margin-bottom: 0.5rem;
+        .premium {
+          border: 1px solid rgba(0,0,0,0.05);
         }
 
-        .summary-card .value {
-          font-size: 2rem;
-          font-weight: 700;
-          color: ${theme.primary};
-          margin: 0;
+        .highlight {
+          border-left: 5px solid #ff78ac;
         }
 
-        .monthly-comparison {
-          background: ${theme.cardBackground};
-          padding: 1.5rem;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          margin-bottom: 2rem;
-        }
-
-        .monthly-comparison h2 {
-          margin-top: 0;
-          margin-bottom: 1rem;
-          color: ${theme.text};
-        }
-
-        .comparison-cards {
-          display: grid;
-          grid-template-columns: 1fr 1fr auto;
-          gap: 1rem;
-          align-items: center;
-        }
-
-        .comparison-card {
-          background: ${theme.background};
-          padding: 1rem;
-          border-radius: 8px;
-        }
-
-        .comparison-card h4 {
-          margin-top: 0;
-          margin-bottom: 0.5rem;
-          color: ${theme.text};
-        }
-
-        .comparison-card .metrics {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-
-        .comparison-card .metrics div {
+        .monthly {
           display: flex;
           justify-content: space-between;
+          margin-top: 10px;
         }
 
-        .comparison-card .label {
-          color: ${theme.text};
-          opacity: 0.7;
-        }
-
-        .comparison-card .value {
-          font-weight: 600;
-          color: ${theme.text};
-        }
-
-        .growth-indicators {
+        .growthBox {
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 8px;
         }
 
-        .growth {
-          padding: 0.5rem 1rem;
-          border-radius: 6px;
+        .badge {
+          padding: 6px 10px;
+          border-radius: 20px;
+          font-size: 12px;
           font-weight: 600;
-          text-align: center;
         }
 
-        .growth.positive {
-          background: #e8f5e8;
-          color: #2e7d32;
+        .green {
+          background: #e6f7ec;
+          color: #1b7f3b;
         }
 
-        .growth.negative {
-          background: #ffebee;
-          color: #c62828;
-        }
-
-        .charts-grid {
+        .charts {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-          gap: 1rem;
-          margin-bottom: 2rem;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+          margin: 20px 0;
         }
 
-        .chart-container {
-          background: ${theme.cardBackground};
-          padding: 1.5rem;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .chart-container h3 {
-          margin-top: 0;
-          margin-bottom: 1rem;
-          color: ${theme.text};
-        }
-
-        .top-items {
-          background: ${theme.cardBackground};
-          padding: 1.5rem;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .top-items h3 {
-          margin-top: 0;
-          margin-bottom: 1rem;
-          color: ${theme.text};
-        }
-
-        .items-list {
+        .row {
           display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
+          justify-content: space-between;
+          padding: 10px 0;
+          border-bottom: 1px solid #eee;
         }
 
-        .item-row {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          padding: 0.75rem;
-          background: ${theme.background};
-          border-radius: 8px;
+        .insights-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 12px;
+          margin-top: 10px;
         }
 
-        .rank {
-          font-weight: 700;
-          color: ${theme.primary};
-          min-width: 30px;
-        }
-
-        .item-name {
-          flex: 1;
-          color: ${theme.text};
-        }
-
-        .item-count {
-          font-weight: 600;
-          color: ${theme.text};
-          opacity: 0.7;
-        }
-
-        @media (max-width: 768px) {
-          .analytics-header {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: flex-start;
-          }
-
-          .comparison-cards {
-            grid-template-columns: 1fr;
-          }
-
-          .growth-indicators {
-            flex-direction: row;
-            justify-content: space-around;
-          }
-
-          .charts-grid {
-            grid-template-columns: 1fr;
-          }
+        .loading {
+          padding: 40px;
+          text-align: center;
         }
       `}</style>
     </div>
   )
 }
+
+// 🔥 REUSABLE COMPONENTS
+const Card = ({ title, value, highlight }) => (
+  <div className="box" style={{
+    border: highlight ? '2px solid #ff78ac' : 'none'
+  }}>
+    <h4>{title}</h4>
+    <p style={{
+      fontSize: '22px',
+      fontWeight: 'bold',
+      color: highlight ? '#ff78ac' : '#333'
+    }}>
+      {value}
+    </p>
+  </div>
+)
+
+const InsightCard = ({ title, value, sub }) => (
+  <div style={{
+    background: '#f8fafc',
+    padding: '10px',
+    borderRadius: '10px'
+  }}>
+    <p style={{ fontSize: '12px', opacity: 0.6 }}>{title}</p>
+    <p style={{ fontWeight: 'bold' }}>{value}</p>
+    {sub && <p style={{ fontSize: '12px' }}>{sub}</p>}
+  </div>
+)
 
 export default Analytics

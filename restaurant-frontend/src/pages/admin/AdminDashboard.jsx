@@ -1,3 +1,5 @@
+// FULL PREMIUM VERSION
+
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAdminAuth } from '../../context/AdminAuthContext'
@@ -9,7 +11,6 @@ const AdminDashboard = () => {
   const [analytics, setAnalytics] = useState(null)
   const [newOrderIds, setNewOrderIds] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
   const [updatingOrderId, setUpdatingOrderId] = useState(null)
 
   const navigate = useNavigate()
@@ -23,7 +24,6 @@ const AdminDashboard = () => {
 
     socket.on("new-order", (order) => {
       setOrders(prev => [order, ...prev])
-
       setNewOrderIds(prev => [...prev, order._id])
 
       setTimeout(() => {
@@ -42,57 +42,38 @@ const AdminDashboard = () => {
   }
 
   const fetchOrders = async () => {
-    try {
-      const response = await orderAPI.getAllOrders()
-      setOrders(response.data.data)
-      setError('')
-    } catch {
-      setError('Failed to fetch orders')
-    } finally {
-      setLoading(false)
-    }
+    const res = await orderAPI.getAllOrders()
+    setOrders(res.data.data)
+    setLoading(false)
   }
 
   const fetchAnalytics = async () => {
-    try {
-      const response = await orderAPI.getAnalytics()
-      setAnalytics(response.data.data)
-    } catch (error) {
-      console.error('Failed to fetch analytics:', error)
-    }
+    const res = await orderAPI.getAnalytics()
+    setAnalytics(res.data.data)
   }
 
   const updateOrderStatus = async (orderId, newStatus) => {
     setUpdatingOrderId(orderId)
-    try {
-      await orderAPI.updateOrderStatus(orderId, newStatus)
+    await orderAPI.updateOrderStatus(orderId, newStatus)
 
-      setOrders(prev =>
-        prev.map(order =>
-          order._id === orderId ? { ...order, status: newStatus } : order
-        )
+    setOrders(prev =>
+      prev.map(order =>
+        order._id === orderId ? { ...order, status: newStatus } : order
       )
-    } catch {
-      setError('Failed to update order status')
-    } finally {
-      setUpdatingOrderId(null)
-    }
+    )
+
+    setUpdatingOrderId(null)
   }
 
   const getTimeAgo = (time) => {
     const diff = Math.floor((Date.now() - new Date(time)) / 60000)
     if (diff < 1) return 'Just now'
-    if (diff < 60) return `${diff} min ago`
-    return `${Math.floor(diff / 60)} hr ago`
+    if (diff < 60) return `${diff} min`
+    return `${Math.floor(diff / 60)} hr`
   }
 
   const isUrgent = (time) => {
     return (Date.now() - new Date(time)) / 60000 > 15
-  }
-
-  const handleLogout = () => {
-    logout()
-    navigate('/admin/login')
   }
 
   const groupedOrders = {
@@ -101,293 +82,195 @@ const AdminDashboard = () => {
     Served: orders.filter(o => o.status === 'Served')
   }
 
-  if (loading && orders.length === 0) return <div>Loading...</div>
+  if (loading) return <div className="loading">Loading...</div>
 
   return (
-    <div className="admin-dashboard">
+    <div className="dashboard">
 
-      <div className="dashboard-header">
-        <h1>Kitchen Dashboard</h1>
-        <div className="header-buttons">
-
-  {/* TEMP HIDE MENU */}
-  {false && (
-    <button onClick={() => navigate('/admin/menu')}>Menu</button>
-  )}
-
-  <button className="logout" onClick={handleLogout}>Logout</button>
-  <button className="analytics-btn" onClick={() => navigate('/admin/analytics')}>View Analytics</button>
-</div>
+      <div className="header">
+        <h1>🍳 Kitchen Dashboard</h1>
+        <div className="actions">
+          <button onClick={() => navigate('/admin/analytics')}>Analytics</button>
+          <button onClick={() => logout()}>Logout</button>
+        </div>
       </div>
 
-      {/* Analytics Section */}
+      {/* Analytics Cards */}
       {analytics && (
-        <div className="analytics-section">
-          <div className="analytics-card">
-            <h3>Orders Today</h3>
-            <p className="analytics-value">{analytics.totalOrders}</p>
-          </div>
-          <div className="analytics-card">
-            <h3>Revenue</h3>
-            <p className="analytics-value">₹{analytics.totalRevenue}</p>
-          </div>
-          <div className="analytics-card">
-            <h3>Most Ordered</h3>
-            <p className="analytics-value">{analytics.mostOrderedItem}</p>
-          </div>
+        <div className="analytics">
+          <Stat title="Orders" value={analytics.totalOrders} />
+          <Stat title="Revenue" value={`₹${analytics.totalRevenue}`} highlight />
+          <Stat title="Top Item" value={analytics.mostOrderedItem} />
         </div>
       )}
 
-      <div className="kanban-board">
+      {/* Columns */}
+      <div className="board">
         {Object.entries(groupedOrders).map(([status, list]) => (
-          <div key={status} className="kanban-column">
-            <h3>{status}</h3>
+          <div key={status} className="column">
+            <h2>{status}</h2>
 
-            {list.map(order => (
-              <div
-                key={order._id}
-                className={`order-card 
-                ${isUrgent(order.createdAt) ? 'urgent' : ''} 
-                ${newOrderIds.includes(order._id) ? 'new' : ''}`}
-              >
-                <h2>Table {order.tableNumber}</h2>
-                <p className="time">{getTimeAgo(order.createdAt)}</p>
+            {list.map(order => {
+              const urgent = isUrgent(order.createdAt)
 
-                {isUrgent(order.createdAt) && (
-                  <p className="delay">⚠ Delayed</p>
-                )}
+              return (
+                <div
+                  key={order._id}
+                  className={`card ${status.toLowerCase()} ${urgent ? 'urgent' : ''} ${newOrderIds.includes(order._id) ? 'new' : ''}`}
+                >
+                  <div className="top">
+                    <h3>Table {order.tableNumber}</h3>
+                    <span>{getTimeAgo(order.createdAt)}</span>
+                  </div>
 
-                <div className="items">
-                  {order.items.map((item, i) => (
-                    <div key={i} className="item-row">
-                      <span>{item.name}</span>
-                      <span>×{item.quantity}</span>
-                      <span>₹{item.price * item.quantity}</span>
-                    </div>
-                  ))}
+                  {urgent && <div className="alert">⚠ Delayed</div>}
+
+                  <div className="items">
+                    {order.items.map((item, i) => (
+                      <div key={i} className="item">
+                        {item.name} ×{item.quantity}
+                        <span>₹{item.price * item.quantity}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="footer">
+                    <strong>₹{order.totalAmount}</strong>
+
+                    {status === 'Preparing' && (
+                      <button onClick={() => updateOrderStatus(order._id, 'Ready')}>
+                        Mark Ready
+                      </button>
+                    )}
+
+                    {status === 'Ready' && (
+                      <button className="green" onClick={() => updateOrderStatus(order._id, 'Served')}>
+                        Mark Served
+                      </button>
+                    )}
+                  </div>
                 </div>
-
-                <div className="footer">
-                  <strong>Total ₹{order.totalAmount}</strong>
-
-                  {order.status === 'Preparing' && (
-                    <button
-                      disabled={updatingOrderId === order._id}
-                      onClick={() => updateOrderStatus(order._id, 'Ready')}
-                    >
-                      {updatingOrderId === order._id ? 'Updating...' : 'Mark Ready'}
-                    </button>
-                  )}
-
-                  {order.status === 'Ready' && (
-                    <button
-                      disabled={updatingOrderId === order._id}
-                      onClick={() => updateOrderStatus(order._id, 'Served')}
-                    >
-                      {updatingOrderId === order._id ? 'Updating...' : 'Mark Served'}
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         ))}
       </div>
 
       <style jsx>{`
-.admin-dashboard {
-  padding: 1rem;
-  background: #f4f6f8;
-  min-height: 100vh;
-}
+        .dashboard {
+          padding: 20px;
+          background: linear-gradient(135deg, #f8fafc, #eef2f7);
+        }
 
-/* HEADER */
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
+        .header {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 20px;
+        }
 
-.dashboard-header h1 {
-  font-size: 28px;
-  font-weight: 700;
-}
+        .actions button {
+          margin-left: 10px;
+          padding: 8px 14px;
+          border-radius: 8px;
+          border: none;
+          cursor: pointer;
+        }
 
-/* BUTTONS */
-.header-buttons {
-  display: flex;
-  gap: 10px;
-}
+        .analytics {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 15px;
+          margin-bottom: 20px;
+        }
 
-.header-buttons button {
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-}
+        .board {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+        }
 
-/* ANALYTICS */
-.analytics-section {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-}
+        .column h2 {
+          margin-bottom: 10px;
+        }
 
-.analytics-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  flex: 1;
-  min-width: 200px;
-  text-align: center;
-}
+        .card {
+          background: white;
+          border-radius: 14px;
+          padding: 14px;
+          margin-bottom: 14px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+          transition: 0.3s;
+        }
 
-.analytics-card h3 {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
+        .card:hover {
+          transform: translateY(-4px);
+        }
 
-.analytics-value {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #333;
-  margin: 0;
-}
+        .preparing { border-left: 5px solid #f59e0b; }
+        .ready { border-left: 5px solid #22c55e; }
+        .served { opacity: 0.6; }
 
-/* Logout */
-.logout {
-  background: #ff6b6b;
-  color: white;
-}
+        .urgent {
+          animation: pulse 1.5s infinite;
+          border-left: 5px solid red;
+        }
 
-/* Analytics Button */
-.analytics-btn {
-  background: #4caf50;
-  color: white;
-}
+        .alert {
+          color: red;
+          font-weight: bold;
+          margin: 5px 0;
+        }
 
-/* BOARD */
-.kanban-board {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  padding-bottom: 1rem;
-}
+        .items {
+          background: #f1f5f9;
+          padding: 10px;
+          border-radius: 10px;
+          margin: 10px 0;
+        }
 
-.kanban-column {
-  min-width: 320px;
-}
+        .item {
+          display: flex;
+          justify-content: space-between;
+        }
 
-/* CARD */
-.order-card {
-  background: #fff;
-  border-radius: 20px;
-  padding: 16px;
-  padding-left: 18px; /* 🔥 FIX SPACING */
-  margin-bottom: 16px;
-  position: relative;
-  border: 2px solid #ff4d4d;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-}
+        .footer {
+          display: flex;
+          justify-content: space-between;
+        }
 
-/* LEFT COLOR STRIP */
-.order-card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 6px;
-  border-radius: 20px 0 0 20px;
-  background: orange;
-}
+        button {
+          background: #ff78ac;
+          color: white;
+          border: none;
+          padding: 6px 10px;
+          border-radius: 6px;
+        }
 
-/* STATUS COLORS */
-.kanban-column:nth-child(2) .order-card::before {
-  background: #22c55e;
-}
+        .green {
+          background: #22c55e;
+        }
 
-.kanban-column:nth-child(3) .order-card::before {
-  background: #9ca3af;
-}
-
-/* TEXT */
-.order-card h2 {
-  margin: 0;
-  font-size: 20px;
-}
-
-.time {
-  color: gray;
-  font-size: 13px;
-}
-
-.delay {
-  color: red;
-  font-weight: 600;
-  margin: 5px 0;
-}
-
-/* ITEMS BOX */
-.items {
-  margin: 10px 0;
-  background: #f1f5f9;
-  padding: 12px;
-  border-radius: 12px;
-}
-
-.item-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 6px;
-}
-
-/* FOOTER */
-.footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-}
-
-.footer button {
-  background: orange;
-  color: white;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-/* READY BUTTON GREEN */
-.kanban-column:nth-child(2) .footer button {
-  background: #22c55e;
-}
-
-/* EFFECTS */
-.urgent {
-  border: 2px solid red;
-}
-
-.new {
-  animation: glow 1s ease-in-out 2;
-}
-
-@keyframes glow {
-  0% { box-shadow: 0 0 0px blue; }
-  50% { box-shadow: 0 0 20px blue; }
-  100% { box-shadow: 0 0 0px blue; }
-}
-`}</style>
+        @keyframes pulse {
+          0% { box-shadow: 0 0 0 rgba(255,0,0,0.4); }
+          50% { box-shadow: 0 0 10px rgba(255,0,0,0.7); }
+          100% { box-shadow: 0 0 0 rgba(255,0,0,0.4); }
+        }
+      `}</style>
     </div>
   )
 }
+
+const Stat = ({ title, value, highlight }) => (
+  <div style={{
+    background: 'white',
+    padding: '15px',
+    borderRadius: '12px',
+    textAlign: 'center',
+    border: highlight ? '2px solid #ff78ac' : 'none'
+  }}>
+    <p>{title}</p>
+    <h2>{value}</h2>
+  </div>
+)
 
 export default AdminDashboard
